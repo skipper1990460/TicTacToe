@@ -1,32 +1,45 @@
 <template>
-  <div class="content" @click.stop>
+  <div class="list-tictactoe" @click.stop>
+		<div class="title">
+			
+			<div class="left-box">
+				<h2 v-if="flag == 0">win! +10</h2>
+				<h2 v-if="flag == 1">lost! -10</h2>
+				<h2 v-if="flag == 2">draw! -2</h2>
+				<span v-if="this.flag != 3" @click="restart">继续</span>
+			</div>
+			<div class="right-box">
+				<h2>分数: {{ this.num }}</h2>
+				<h4>赢:  +10</h4>
+				<h4>输:  -10</h4>
+				<h4>平:  -02</h4>
+			</div>
+		</div>
 		<ul>
 			<li>
-				<span @click="handleClick(0,0)" :style="{'background-color': this.show(this.a00)}">    </span>
-				<span @click="handleClick(0,1)" :style="{'background-color': this.show(this.a01)}">    </span>
-				<span @click="handleClick(0,2)" :style="{'background-color': this.show(this.a02)}">    </span>
+				<span @click="handleClick(0,0)" :class="{'piece-x': this.a00==1,'piece-o': this.a00==0}"></span>
+				<span @click="handleClick(0,1)" :class="{'piece-x': this.a01==1,'piece-o': this.a01==0}"></span>
+				<span @click="handleClick(0,2)" :class="{'piece-x': this.a02==1,'piece-o': this.a02==0}"></span>
 			</li>
 			<li>
-				<span @click="handleClick(1,0)" :style="{'background-color': this.show(this.a10)}">    </span>
-				<span @click="handleClick(1,1)" :style="{'background-color': this.show(this.a11)}">    </span>
-				<span @click="handleClick(1,2)" :style="{'background-color': this.show(this.a12)}">    </span>
+				<span @click="handleClick(1,0)" :class="{'piece-x': this.a10==1,'piece-o': this.a10==0}"></span>
+				<span @click="handleClick(1,1)" :class="{'piece-x': this.a11==1,'piece-o': this.a11==0}"></span>
+				<span @click="handleClick(1,2)" :class="{'piece-x': this.a12==1,'piece-o': this.a12==0}"></span>
 			</li>
 			<li>
-				<span @click="handleClick(2,0)" :style="{'background-color': this.show(this.a20)}">    </span>
-				<span @click="handleClick(2,1)" :style="{'background-color': this.show(this.a21)}">    </span>
-				<span @click="handleClick(2,2)" :style="{'background-color': this.show(this.a22)}">    </span>
+				<span @click="handleClick(2,0)" :class="{'piece-x': this.a20==1,'piece-o': this.a20==0}"></span>
+				<span @click="handleClick(2,1)" :class="{'piece-x': this.a21==1,'piece-o': this.a21==0}"></span>
+				<span @click="handleClick(2,2)" :class="{'piece-x': this.a22==1,'piece-o': this.a22==0}"></span>
 			</li>
 		</ul>
-		<div>
-			<button @click="restart">重新开始</button>
-		</div>
 	</div>
 </template>
 <script>
   export default{
 		data() {
 			return {
-				flag: 22,
+				flag: 3,
+				status: 22,
 				a: [[2,2,2],[2,2,2],[2,2,2]],
 				a00: 2,
 				a01: 2,
@@ -37,16 +50,15 @@
 				a20: 2,
 				a21: 2,
 				a22: 2,
+				num: 0,
+				numCopy: 0,
 			}
 		},
-    props: {
-      
-    },
     methods: {
 			
 			//点击重新开始按钮，全部初始化数值
-			restart(){
-				this.flag = 22;
+			restart() {
+				this.status = 22;
 				this.a = [[2,2,2],[2,2,2],[2,2,2]];
 				this.a00 = 2;
 				this.a01 = 2;
@@ -57,17 +69,14 @@
 				this.a20 = 2;
 				this.a21 = 2;
 				this.a22 = 2;
-			},
-			
-			//根据数值显示下棋效果
-			show(index){
-				if(index == 0){
-					return 'red';
-				}else if(index == 1){
-					return 'blue';
-				}else{
-					return '#ccc';
+				if(this.flag == 0){
+					this.numCopy = this.numCopy + 10;
+				}else if(this.flag == 1){
+					this.numCopy = this.numCopy - 10;
+				}else if(this.flag == 2){
+					this.numCopy = this.numCopy - 2;
 				}
+				this.flag = 3;
 			},
 			
 			//点击触发事件，赋值
@@ -80,11 +89,11 @@
 				}
 				
 				//1.检验是否决出胜负
-				//flag == 0 玩家
-				//flag == 1 电脑
+				//status == 0 玩家
+				//status == 1 电脑
 				//2.检验即将决出胜负
-				//flag == 10 阻拦玩家
-				//flag == 11 促进电脑
+				//status == 10 阻拦玩家
+				//status == 11 促进电脑
 				//3.随机
 				//默认 22
 				
@@ -102,12 +111,12 @@
 					return new Promise((resolve, reject) => {
 						//2.检验破绽
 						//如果未决出胜负
-						if(_this.flag == 22){
+						if(_this.status == 22){
 							_this.strikeBackP();
 							resolve();
 						}else{
-							//如果flag!=22，则
-							_this.flag = 22;
+							//如果status!=22，则
+							_this.status = 22;
 							_this.changeView();
 						}
 					})
@@ -115,24 +124,24 @@
 					return new Promise((resolve, reject) => {
 						//未找到破绽
 						//2.检验用户是否存在二连
-						if(_this.flag == 22){
+						if(_this.status == 22){
 							_this.strikeBackQ();
 							resolve();
 						}else{
-							_this.flag = 22;
+							_this.status = 22;
 							_this.changeView();
 						}
 					})
 				}).then(() => {
 					//若无潜在威胁则随机下棋
-					if(_this.flag == 22){
+					if(_this.status == 22){
 						_this.randomFun();
-					}else if(_this.flag == 10){
+					}else if(_this.status == 10){
 						console.log('拦截成功！')
-					}else if(_this.flag == 11){
+					}else if(_this.status == 11){
 						console.log('youc lost');
 					}
-					_this.flag = 22;
+					_this.status = 22;
 					_this.changeView();
 				});
 			},
@@ -143,42 +152,50 @@
 				console.log('开始判断是否存在三连');
 				for(let i=0;i<3;i++){
 					if(this.a[i][0] + this.a[i][1] + this.a[i][2] == 0){
-					 console.log('you win'); 
-					 return this.flag = 0;
+						console.log('you win'); 
+						this.flag = 0;
+						return this.status = 0;
 					}
 					if(this.a[0][i] + this.a[1][i] + this.a[2][i] == 0){
 						console.log('you win'); 
-						return this.flag = 0;
+						this.flag = 0;
+						return this.status = 0;
 					}
 				}
 				if(this.a[0][0] + this.a[1][1] + this.a[2][2] == 0){
 					console.log('you win'); 
-					return this.flag = 0;
+					this.flag = 0;
+					return this.status = 0;
 				}
 				if(this.a[0][2] + this.a[1][1] + this.a[2][0] == 0){
 					console.log('you win'); 
-					return this.flag = 0;
+					this.flag = 0;
+					return this.status = 0;
 				}
 				
 				//输
 				for(let i=0;i<3;i++){
 					if(this.a[i][0] == 1 && this.a[i][1] == 1 && this.a[i][2] == 1){
-					 console.log('you lost'); 
-					 return this.flag = 1;
+						console.log('you lost'); 
+						this.flag = 1;
+						return this.status = 1;
 					}
 					if(this.a[0][i] == 1 && this.a[1][i] == 1 && this.a[2][i] == 1){
 						console.log('you lost'); 
-						return this.flag = 1;
+					  this.flag = 1;
+						return this.status = 1;
 					}
 				}
 				
 				if(this.a[0][0] == 1 && this.a[1][1] == 1 && this.a[2][2] == 1){
 					console.log('you lost'); 
-					return this.flag = 1;
+					this.flag = 1;
+					return this.status = 1;
 				}
 				if(this.a[0][2] == 1 && this.a[1][1] == 1 && this.a[2][0] == 1){
-					console.log('you lost'); 
-					return this.flag = 1;
+					console.log('you lost');
+					this.flag = 1;
+					return this.status = 1;
 				}
 			},
 
@@ -194,7 +211,8 @@
 						if(arr1.indexOf(0) <= -1){
 							let index = arr1.indexOf(2);
 							this.a[i][index] = 1;
-							return this.flag = 11;
+							this.flag = 1;
+							return this.status = 11;
 						}
 					};
 					
@@ -204,7 +222,8 @@
 						if(arr2.indexOf(0) <= -1){
 							let index = arr2.indexOf(2);
 							this.a[index][i] = 1;
-							return this.flag = 11;
+							this.flag = 1;
+							return this.status = 11;
 						}
 					}
 					
@@ -216,7 +235,8 @@
 					if(arr3.indexOf(0) <= -1){
 						let index = arr3.indexOf(2);
 						this.a[index][index] = 1;
-						return this.flag = 11;
+						this.flag = 1;
+						return this.status = 11;
 					}
 					
 				}
@@ -225,15 +245,18 @@
 					if(arr4.indexOf(0) <= -1){
 						if(this.a[0][2] == 2){
 							this.a[0][2] = 1;
-							return this.flag = 11;
+							this.flag = 1;
+							return this.status = 11;
 						}
 						if(this.a[1][1] == 2){
 							this.a[1][1] = 1;
-							return this.flag = 11;
+							this.flag = 1;
+							return this.status = 11;
 						}
 						if(this.a[2][0] == 2){
 							this.a[2][0] = 1;
-							return this.flag = 11;
+							this.flag = 1;
+							return this.status = 11;
 						} 
 					}
 				}
@@ -250,7 +273,7 @@
 						if(arr1.indexOf(2) > -1){
 							let index = arr1.indexOf(2);
 							this.a[i][index] = 1;
-							return this.flag = 11;
+							return this.status = 11;
 						}
 					};
 					
@@ -260,7 +283,7 @@
 						if(arr2.indexOf(2) > -1){
 							let index = arr2.indexOf(2);
 							this.a[index][i] = 1;
-							return this.flag = 11;
+							return this.status = 11;
 						}
 					}
 				}
@@ -271,22 +294,22 @@
 					if(arr3.indexOf(2) > -1){
 						let index = arr3.indexOf(2);
 						this.a[index][index] = 1;
-						return this.flag = 11;
+						return this.status = 11;
 					}
 					
 				}
 				if(this.a[0][2] + this.a[1][1] + this.a[2][0] == 2){
 					if(this.a[0][2] == 2){
 						this.a[0][2] = 1;
-						return this.flag = 10;
+						return this.status = 10;
 					}
 					if(this.a[1][1] == 2){
 						this.a[1][1] = 1;
-						return this.flag = 10;
+						return this.status = 10;
 					}
 					if(this.a[2][0] == 2){
 						this.a[2][0] = 1;
-						return this.flag = 10;
+						return this.status = 10;
 					} 
 				}
 			},
@@ -310,6 +333,7 @@
 					if(this.a[0].indexOf(2) > -1 || this.a[1].indexOf(2) > -1 || this.a[2].indexOf(2) > -1){
 						this.randomFun();
 					}else{
+						this.flag = 2;
 						console.log('平局!');
 					}
 				}
@@ -332,32 +356,119 @@
 				},300);
 			}
     },
-    mounted () {
-			
-    },
-		created () {
-			
+		watch: {
+			//重点---对数据进行监听，发生改变，缓动映射之父数据
+			//监听positionTop
+			numCopy: function(newValue, oldValue) {
+				let _this = this
+				function animate (time) {
+					requestAnimationFrame(animate)
+					TWEEN.update(time)
+				}
+				new TWEEN.Tween({ tweeningNumber: oldValue })
+					.easing(TWEEN.Easing.Quintic.InOut)
+					.to({ tweeningNumber: newValue }, 1500)
+					.onUpdate(function () {
+						//映射rotate
+						_this.num = this.tweeningNumber.toFixed(1);
+					})
+					.start()
+				animate()
+			},
 		}
   }
 </script>
 
 <style scoped lang="less">
-	ul {
+	.list-tictactoe {
+		height: 100%;
 		width: 100%;
 		
-		li {
-		height: 30px;
-		width: 100%;
-		
-			span {
-				border: 1px solid #999;
-				display: inline-block; 
-				height: 30px;
-				line-height: 30px;
+		.title {
+			height: 100px;
+			margin: 0 auto;
+			position: relative;
+			width: 150px;
+			
+			.left-box {
+				bottom: -70px;
+				left: -90px;
+				position: absolute;
 				text-align: center;
-				width: 30%;
 				
+				h2 {
+					margin-bottom: 5px;
+				}
+				
+				span {
+					border: 1px solid #ccc;
+					border-radius: 3px;
+					display: inline-block;
+					height: 20px;
+					margin-top: 5px;
+					line-height: 20px;
+					width: 40px;
+				}
+			}
+			
+			.right-box {
+				bottom: -90px;
+				position: absolute;
+				right: -110px;
+				width: 100px;
+				
+				h2 {
+					margin-bottom: 10px;
+				}
+				h4 {
+					margin-bottom: 4px;
+				}
 			}
 		}
+		
+		ul {
+			border: 1px solid #ccc;
+			background: url(../../public/bgc.png) no-repeat center;
+			background-size: 100%;
+			margin:0 auto;
+			width: 150px;
+			
+			li {
+				margin: 5px 0;
+				text-align: center;
+				width: 100%;
+			
+				span {
+					display: inline-block; 
+					height: 40px;
+					line-height: 30px;
+					text-align: center;
+					width: 40px;
+					z-index: 10;
+				}
+				
+				.piece-x {
+					width: 40px;
+					height: 40px;
+					border-radius: 100%;
+					outline: 16px solid #ccc;
+					outline-offset: -33px;
+					cursor: pointer;
+					transform: rotate(45deg);
+				}
+				
+				.piece-o {
+					border-radius: 50%;
+					border: 4px solid #ccc;
+					height: 30px;
+					line-height: 30px;
+					margin: 5px;
+					text-align: center;
+					width: 30px;
+				}
+			}
+			
+		}
 	}
+	
 </style>
